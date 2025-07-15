@@ -1,3 +1,13 @@
+# 데이터 폴더
+data/raw_data/
+data/processed_data/
+
+# Node.js 의존성 폴더
+extension/node_modules/
+
+# 운영체제 파일
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
