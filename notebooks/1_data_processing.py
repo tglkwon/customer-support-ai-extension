@@ -74,38 +74,43 @@ df = df[df['Review Text'].str.strip() != '']
 df = df[df['Developer Reply Text'].str.strip() != '']
 print(f"전처리 후 최종 데이터 크기: {df.shape}")
 
-def create_prompt(row):
-    # 'Developer Reply Text' 열을 제외한 모든 열을 prompt로 구성
-    prompt_cols = row.drop('Developer Reply Text')
-    # 각 열에 대해 "키: 값" 형식의 문자열을 만들고 줄바꿈으로 연결
-    return '\n'.join([f"{col}: {val}" for col, val in prompt_cols.items()])
+import json
 
-# prompt 생성
-prompts = df.apply(create_prompt, axis=1)
+def create_gemini_jsonl(row):
+    # 'Review Text'와 'Developer Reply Text'를 제외한 모든 열을 context로 구성
+    context_cols = row.drop(['Review Text', 'Developer Reply Text'])
+    context = '\n'.join([f"{col}: {val}" for col, val in context_cols.items()])
+    
+    # 컨텍스트와 실제 리뷰 텍스트를 합쳐서 user의 content로 만듭니다.
+    user_content = f"{context}\n\nReview Text: {row['Review Text']}"
+    model_content = row['Developer Reply Text']
+    
+    # Gemini 튜닝 형식에 맞는 contents 필드 구성
+    contents = {
+        "contents": [
+            {"role": "user", "parts": [{"text": user_content}]},
+            {"role": "model", "parts": [{"text": model_content}]}
+        ]
+    }
+    
+    return json.dumps(contents, ensure_ascii=False)
 
-# completion 은 'Developer Reply Text' 열
-completions = df['Developer Reply Text'].astype(str).str.strip()
-
-# 새로운 데이터프레임 생성
-training_df = pd.DataFrame({
-    'prompt': prompts,
-    'completion': completions
-})
+# JSONL 형식의 문자열 리스트 생성
+jsonl_data = df.apply(create_gemini_jsonl, axis=1)
 
 print("학습 데이터셋 생성 완료.")
 
-# ## 1.5. ���성된 데이터셋 확인 및 저장
+# ## 1.5. 생성된 데이터셋 확인 및 저장
 
-print(f"최종 데이터셋 크기: {training_df.shape}")
+print(f"최종 데이터셋 크기: {len(jsonl_data)}")
 print("\n--- 생성된 데이터 샘플 ---")
-for i in range(min(3, len(training_df))):
-    print("[PROMPT]")
-    print(training_df.iloc[i]['prompt'])
-    print("\n[COMPLETION]")
-    print(training_df.iloc[i]['completion'])
+for i in range(min(3, len(jsonl_data))):
+    print(jsonl_data.iloc[i])
     print("------------------------------------\n")
 
 # .jsonl 파일로 저장
-training_df.to_json(output_file_path, orient='records', lines=True, force_ascii=False)
+with open(output_file_path, 'w', encoding='utf-8') as f:
+    for line in jsonl_data:
+        f.write(line + '\n')
 
 print(f"학습 데이터가 성공적으로 '{output_file_path}' 에 저장되었습니다.")
