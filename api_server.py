@@ -7,9 +7,9 @@ import traceback
 
 # --- Vertex AI 설정 ---
 PROJECT_ID = "customer-support-ai-extension"
-LOCATION = "asia-northeast3"
+LOCATION = "us-central1"
 # 튜닝된 모델의 전체 리소스 이름 (버전 정보 제외)
-TUNED_MODEL_ID = "projects/442212722968/locations/asia-northeast3/models/5441707346235490304"
+TUNED_MODEL_ID = "projects/442212722968/locations/us-central1/models/1835448845106937856"
 
 # Vertex AI 초기화
 vertexai.init(project=PROJECT_ID, location=LOCATION)

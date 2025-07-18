@@ -3,18 +3,6 @@
 ---
 ### 작업 기록
 
-#### v0.5.0: REST API 직접 호출 방식으로 최종 안정화
-```
-feat(system): REST API 직접 호출 방식으로 최종 안정화
-
-- **문제 상황:** 튜닝된 Gemini 모델을 Vertex AI SDK(`GenerativeModel` 클래스)로 호출 시, 원인 불명의 `400 Invalid Argument` 오류가 지속적으로 발생함.
-- **진단:** `curl`을 이용한 단계적 테스트 결과, 로컬 환경의 Python SDK와 Vertex AI 엔드포인트 간의 호환성 문제로 최종 결론. (상세 내용은 `TROUBLESHOOTING.md` 참고)
-- **해결 조치:**
-  - `api_server.py`에서 `vertexai` SDK 의존성을 완전히 제거.
-  - `requests`와 `subprocess` 라이브러리를 사용하여, `gcloud`로 인증 토큰을 직접 받아 REST API를 호출하는 방식으로 변경.
-  - **안정성을 최우선**으로 하여, 튜닝된 모델의 엔드포인트 대신 **기본 `gemini-2.0-flash-lite-001` 모델**을 직접 호출하도록 최종 결정. 이로써 모든 기능이 정상적으로 작동함을 확인함.
-```
-
 #### v0.4.0: Vertex AI 모델 연동 트러블슈팅 재튜닝
 ```
 fix(model): Vertex AI 모델 연동 오류 해결 및 재튜닝
