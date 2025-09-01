@@ -1,18 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import vertexai
-from vertexai.generative_models import GenerativeModel
+import requests
+import subprocess
+import json
 import traceback
 
 # --- Vertex AI 설정 ---
 PROJECT_ID = "customer-support-ai-extension"
 LOCATION = "us-central1"
-# 튜닝된 모델의 전체 리소스 이름 (버전 정보 제외)
-TUNED_MODEL_ID = "projects/442212722968/locations/us-central1/models/1835448845106937856"
-
-# Vertex AI 초기화
-vertexai.init(project=PROJECT_ID, location=LOCATION)
+# 안정성을 위해 :generateContent API로 직접 호출할 튜닝된 모델 ID
+TUNED_MODEL_ID = "customer-support-ai-v2-stable"
 
 # --- FastAPI 앱 설정 ---
 app = FastAPI()
@@ -32,29 +30,66 @@ class PromptRequest(BaseModel):
 class CompletionResponse(BaseModel):
     reply: str
 
+# --- Helper 함수 ---
+def get_access_token():
+    """gcloud CLI를 통해 액세스 토큰을 가져옵니다."""
+    try:
+        token = subprocess.check_output(["gcloud", "auth", "print-access-token"], shell=True).decode("utf-8").strip()
+        return token
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        print(f"gcloud를 통해 액세스 토큰을 얻는 중 오류 발생: {e}")
+        raise RuntimeError("gcloud 인증에 실패했습니다. gcloud CLI가 설치 및 인증되었는지 확인하세요.")
+
 # --- API 엔드포인트 정의 ---
 @app.post("/generate-reply", response_model=CompletionResponse)
 def generate_reply(request: PromptRequest):
     """
-    프롬프트를 받아 튜닝된 Gemini 모델을 호출하고, 생성된 답변을 반환합니다.
+    프롬프트를 받아 튜닝된 Gemini 모델의 REST API(:generateContent)를 직접 호출하고, 생성된 답변을 반환합니다.
     """
     print("--- API-RECEIVED-PROMPT-START ---")
     print(request.prompt)
     print("--- API-RECEIVED-PROMPT-END ---")
 
     try:
-        # 올바른 클래스(GenerativeModel)로 튜닝된 모델 로드
-        model = GenerativeModel(TUNED_MODEL_ID)
+        token = get_access_token()
         
-        # 단순 문자열로 프롬프트 전달
-        response = model.generate_content(request.prompt)
+        # 튜닝된 모델을 호출하기 위한 :generateContent 엔드포인트 URL
+        url = f"https://{LOCATION}-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/{LOCATION}/publishers/google/models/{TUNED_MODEL_ID}:generateContent"
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
         
+        # :generateContent API가 요구하는 요청 본문 형식
+        data = {
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [{"text": request.prompt}]
+                }
+            ]
+        }
+
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response.raise_for_status()
+
+        response_json = response.json()
+        
+        # API 응답 구조에 따라 답변 추출
+        reply_text = response_json['candidates'][0]['content']['parts'][0]['text']
+
         print("--- AI-GENERATED-REPLY-START ---")
-        print(response.text)
+        print(reply_text)
         print("--- AI-GENERATED-REPLY-END ---")
 
-        return CompletionResponse(reply=response.text)
+        return CompletionResponse(reply=reply_text)
         
+    except requests.exceptions.HTTPError as http_err:
+        error_body = http_err.response.text
+        print(f"--- HTTP-ERROR-START ---\n{http_err}\n--- RESPONSE-BODY ---\n{error_body}\n--- HTTP-ERROR-END ---")
+        error_message = f"모델 API 호출 중 HTTP 오류가 발생했습니다: {error_body}"
+        return CompletionResponse(reply=error_message)
     except Exception as e:
         print("--- FULL-EXCEPTION-START ---")
         traceback.print_exc()
