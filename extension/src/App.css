@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  min-width: 450px;
 }
 
 .App-header {
@@ -12,6 +13,7 @@
   font-size: calc(10px + 2vmin);
   color: white;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .container {

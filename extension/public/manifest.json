@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "AI 고객 지원 답변 생성기",
+  "version": "0.8.0",
+  "description": "AI를 사용하여 고객 지원 답변을 생성합니다.",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "scripting",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "action": {
+    "default_title": "AI 고객 지원 답변 생성기 열기"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://play.google.com/console/u/*/developers/*/app/*/user-feedback/reviews*"],
+      "js": ["content.js"]
+    }
+  ]
+}
