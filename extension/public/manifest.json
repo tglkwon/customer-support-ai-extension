@@ -7,7 +7,8 @@
     "contextMenus",
     "storage",
     "scripting",
-    "sidePanel"
+    "sidePanel",
+    "tabs"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -25,6 +26,14 @@
     {
       "matches": ["https://play.google.com/console/u/*/developers/*/app/*/user-feedback/reviews*"],
       "js": ["content.js"]
+    },
+    {
+      "matches": ["https://appstoreconnect.apple.com/apps/*/distribution/ratings/*"],
+      "js": ["content_appstore.js"]
+    },
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content_gmail.js"]
     }
   ]
 }

@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import subprocess
 import json
 import traceback
+import os
 
 # --- Vertex AI 설정 ---
 PROJECT_ID = "customer-support-ai-extension"
@@ -88,14 +89,13 @@ def generate_reply(request: PromptRequest):
     except requests.exceptions.HTTPError as http_err:
         error_body = http_err.response.text
         print(f"--- HTTP-ERROR-START ---\n{http_err}\n--- RESPONSE-BODY ---\n{error_body}\n--- HTTP-ERROR-END ---")
-        error_message = f"모델 API 호출 중 HTTP 오류가 발생했습니다: {error_body}"
-        return CompletionResponse(reply=error_message)
+        # 클라이언트가 오류를 명확히 인지하도록 HTTPException을 발생시킵니다.
+        raise HTTPException(status_code=http_err.response.status_code, detail=f"모델 API 호출 중 HTTP 오류가 발생했습니다: {error_body}")
     except Exception as e:
         print("--- FULL-EXCEPTION-START ---")
         traceback.print_exc()
         print("--- FULL-EXCEPTION-END ---")
-        error_message = f"모델 호출 중 오류가 발생했습니다: {getattr(e, 'message', str(e))}"
-        return CompletionResponse(reply=error_message)
+        raise HTTPException(status_code=500, detail=f"모델 호출 중 서버 내부 오류가 발생했습니다: {str(e)}")
 
 @app.get("/")
 def read_root():
