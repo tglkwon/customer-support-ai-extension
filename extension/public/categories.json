@@ -1,0 +1,13 @@
+{
+  "categories": [
+    { "id": "bug_report", "name": "버그 리포트" },
+    { "id": "account_issue", "name": "계정 문제" },
+    { "id": "billing_inquiry", "name": "결제/환불 문의" },
+    { "id": "gameplay_question", "name": "게임 플레이 질문" },
+    { "id": "event_reward_inquiry", "name": "이벤트/보상 문의" },
+    { "id": "content_suggestion", "name": "콘텐츠 제안" },
+    { "id": "review_5_star", "name": "리뷰 5점" },
+    { "id": "review_4_star_no_complaint", "name": "4점 이하 불만 내용 없음" },
+    { "id": "etc", "name": "기타" }
+  ]
+}

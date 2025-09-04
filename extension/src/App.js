@@ -11,10 +11,20 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isCopied, setIsCopied] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   const currentReview = reviews[currentIndex] || null;
 
   // --- Data Fetching and Syncing --- //
+
+  useEffect(() => {
+    // Fetch categories from the public folder
+    fetch('/categories.json')
+      .then((response) => response.json())
+      .then((data) => setCategories(data.categories))
+      .catch((error) => console.error('Error fetching categories:', error));
+  }, []);
 
   const fetchAndSetReviewsFromStorage = () => {
     /* global chrome */
@@ -129,8 +139,9 @@ function App() {
     setError('');
     setReply('');
     try {
-      const response = await axios.post('http://localhost:8000/generate-reply', {
+      const response = await axios.post('http://localhost:8000/generate-response', {
         prompt: fullPrompt,
+        category: selectedCategory,
       });
       setReply(response.data.reply);
     } catch (err) {
@@ -190,6 +201,23 @@ function App() {
                 <p>Source: {currentReview.url}</p>
               </div>
             )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="category-select">카테고리 선택 (선택 사항)</label>
+            <select 
+              id="category-select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              disabled={!currentReview}
+            >
+              <option value="">-- 카테고리 선택 --</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <button onClick={handleGenerateReply} disabled={loading || !currentReview}>
