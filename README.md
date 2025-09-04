@@ -1,7 +1,60 @@
-# customer-support-ai-extension
+# Customer Support AI Extension
+
+**Version:** `v1.4`
+
+이 프로젝트는 고객 지원(CS) 업무, 특히 앱 리뷰나 이메일 문의에 대한 답변을 AI를 통해 자동 생성하여 업무 효율을 높이는 브라우저 확장 프로그램입니다.
 
 ---
-### 작업 기록
+
+### 🛠️ 로컬 개발 환경 설정
+
+새로운 컴퓨터에서 이 프로젝트를 실행하기 위해 필요한 설정 과정입니다.
+
+1.  **프로젝트 복제 (Clone):**
+    ```bash
+    git clone https://github.com/tglkwon/customer-support-ai-extension.git
+    cd customer-support-ai-extension
+    ```
+
+2.  **파이썬 가상 환경 생성 및 활성화:**
+    ```bash
+    # 가상 환경 생성
+    python3 -m venv venv
+
+    # 가상 환경 활성화 (macOS/Linux)
+    source venv/bin/activate
+    ```
+
+3.  **필요 라이브러리 설치:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Google API 키 설정:**
+    [Google AI Studio](https://aistudio.google.com/app/apikey)에서 API 키를 발급받은 후, 아래와 같이 환경 변수로 설정합니다.
+    ```bash
+    export GOOGLE_API_KEY='YOUR_API_KEY_HERE'
+    ```
+
+5.  **API 서버 실행:**
+    ```bash
+    uvicorn api_server:app --reload
+    ```
+    서버가 `http://127.0.0.1:8000`에서 실행됩니다.
+
+6.  **브라우저 확장 프로그램 로드:**
+    - Chrome/Edge 브라우저에서 `chrome://extensions` 또는 `edge://extensions`로 이동합니다.
+    - '개발자 모드'를 활성화합니다.
+    - '압축 해제된 확장 프로그램을 로드합니다'를 클릭하고, 이 프로젝트의 `extension` 폴더를 선택합니다.
+
+---
+
+### 📝 작업 기록
+
+#### v1.4: API 호출 방식을 Vertex AI에서 Gemini API로 변경하고 기능 작동 시작함.
+- **주요 변경:** 백엔드 API 서버(`api_server.py`)와 테스트 스크립트(`test_model.py`)가 튜닝된 Vertex AI 모델 대신, 표준 Gemini API (`gemini-1.5-flash`)를 사용하도록 전면 수정했습니다.
+- **인증 방식:** `gcloud` 인증에서 `GOOGLE_API_KEY` 환경 변수를 사용하는 방식으로 변경하여 설정 과정을 간소화했습니다.
+- **개발 환경:** 파이썬 가상 환경 설정 및 `requirements.txt`를 통한 라이브러리 관리 방법을 도입하고, `README.md`에 상세한 설정 가이드를 추가했습니다.
 
 #### v1.3: 카테고리 기반 답변 생성 기능 추가 및 리드미 정리
 ```

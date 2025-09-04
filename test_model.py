@@ -1,35 +1,39 @@
-import vertexai
-from vertexai.generative_models import GenerativeModel
+import os
+import google.generativeai as genai
 
-def generate_response(project_id: str, location: str, tuned_model_id: str, prompt: str) -> str:
-    """Vertex AI의 튜닝된 모델로부터 답변을 생성합니다."""
+def generate_response(system_prompt: str, user_prompt: str) -> str:
+    """Gemini 모델로부터 답변을 생성합니다."""
     
-    # Vertex AI 초기화
-    vertexai.init(project=project_id, location=location)
-    
-    # 튜닝된 모델 로드
-    # Vertex AI Studio의 튜닝 작업 페이지에서 '배포 및 사용' 버튼을 누르면
-    # 정확한 모델 ID (엔드포인트)를 확인할 수 있습니다.
-    model = GenerativeModel(model_name=tuned_model_id)
+    # Gemini 모델 설정 (시스템 프롬프트 포함)
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash",
+        system_instruction=system_prompt
+    )
     
     # 모델에 프롬프트 전송 및 응답 생성
-    response = model.generate_content([prompt])
+    response = model.generate_content(user_prompt)
     
     return response.text
 
 if __name__ == '__main__':
-    # === 튜닝 완료 후, 이 값들을 실제 값으로 변경해야 합니다. ===
-    PROJECT_ID = "customer-support-ai-extension"
-    LOCATION = "asia-northeast3" # 모델을 튜닝한 리전
-    
-    # 튜닝된 모델 ID는 Vertex AI 튜닝 페이지에서 확인 가능합니다. 
-    # 보통 숫자 형태의 긴 ID이며, 튜닝 작업이 '성공' 상태가 되면 나타납니다.
-    # 예시: "projects/1234567890/locations/asia-northeast3/models/9876543210"
-    TUNED_MODEL_ID = "[YOUR-TUNED-MODEL-ID]" 
-    # ==========================================================
+    # --- API 키 설정 ---
+    # GOOGLE_API_KEY라는 이름의 환경 변수를 설정해야 합니다.
+    # 예: export GOOGLE_API_KEY='당신의 API 키'
+    API_KEY = os.getenv("GOOGLE_API_KEY")
+    if not API_KEY:
+        print("오류: GOOGLE_API_KEY 환경 변수가 설정되지 않았습니다.")
+        print("테스트를 실행하기 전에 'export GOOGLE_API_KEY="<YOUR_API_KEY>"' 명령을 실행하세요.")
+    else:
+        genai.configure(api_key=API_KEY)
 
-    # 테스트용 프롬프트
-    test_prompt = """
+        # --- 테스트용 프롬프트 설정 ---
+        
+        # 시스템 프롬프트 (모델의 역할을 정의)
+        # api_server.py의 SYSTEM_PROMPTS 딕셔너리에서 가져온 예시입니다.
+        test_system_prompt = "당신은 커뮤니케이션 매니저입니다. 사용자가 5점 만점의 긍정적인 리뷰를 남겼습니다. 진심 어린 감사를 표현하고, 게임을 계속 즐겨달라는 따뜻한 답변을 작성해주세요."
+
+        # 사용자 프롬프트 (실제 사용자의 입력)
+        test_user_prompt = """
 Package Name: com.banjihagames.seoul2033_backer
 App Version Name: 3.8.0
 Reviewer Language: ko
@@ -37,16 +41,20 @@ Review Submit Date and Time: 2025-07-13T10:00:00Z
 Star Rating: 5
 Review Text: 모험 좋아하는 사람으로서 최고의 게임이에요! 근데 어쩔 수 없이 많이 플레이하다보면 맨날 똑같은 느낌도 있어요. 모든 게임이 마찬가지인가 싶기도 하지만... 업데이트 주기가 좀 더 짧으면 좋을 것 같아요!
 """
+        # ==========================================================
 
-    if TUNED_MODEL_ID == "[YOUR-TUNED-MODEL-ID]":
-        print("스크립트 실행 준비 완료.")
-        print("모델 튜닝이 완료되면, 'TUNED_MODEL_ID' 값을 실제 모델 ID로 변경한 후 다시 실행해 주세요.")
-    else:
         try:
             print("모델에 답변 생성을 요청합니다...")
-            generated_text = generate_response(PROJECT_ID, LOCATION, TUNED_MODEL_ID, test_prompt)
+            print("\n--- 시스템 프롬프트 ---")
+            print(test_system_prompt)
+            print("\n--- 사용자 프롬프트 ---")
+            print(test_user_prompt)
+            
+            generated_text = generate_response(test_system_prompt, test_user_prompt)
+            
             print("\n--- 모델 생성 답변 ---")
             print(generated_text)
+            
         except Exception as e:
             print(f"\n오류 발생: {e}")
-            print("오류 메시지: TUNED_MODEL_ID가 올바른지, 모델이 엔드포인트에 배포되었는지 확인해 보세요.")
+            print("오류 메시지: API 키가 올바른지, 네트워크 연결에 문제가 없는지 확인해 보세요.")
