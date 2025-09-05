@@ -17,35 +17,64 @@
     ```
 
 2.  **파이썬 가상 환경 생성 및 활성화:**
-    ```bash
-    # 가상 환경 생성
-    python3 -m venv venv
-
-    # 가상 환경 활성화 (macOS/Linux)
-    source venv/bin/activate
-    ```
+    - **가상 환경 생성 (공통):**
+      ```bash
+      python -m venv venv
+      ```
+    - **가상 환경 활성화:** 운영체제와 터미널 종류에 맞는 명령어를 사용하세요.
+      - **Windows (CMD):**
+        ```cmd
+        .\venv\Scripts\activate
+        ```
+      - **Windows (PowerShell):**
+        ```powershell
+        .\venv\Scripts\Activate.ps1
+        ```
+      - **macOS / Linux:**
+        ```bash
+        source venv/bin/activate
+        ```
+      > 활성화에 성공하면 터미널 프롬프트 맨 앞에 `(venv)`가 표시됩니다.
 
 3.  **필요 라이브러리 설치:**
+    > 반드시 가상 환경이 활성화된 상태(`(venv)`가 보이는 상태)에서 실행하세요.
     ```bash
     pip install -r requirements.txt
     ```
 
 4.  **Google API 키 설정:**
-    [Google AI Studio](https://aistudio.google.com/app/apikey)에서 API 키를 발급받은 후, 아래와 같이 환경 변수로 설정합니다.
-    ```bash
-    export GOOGLE_API_KEY='YOUR_API_KEY_HERE'
-    ```
+    [Google AI Studio](https://aistudio.google.com/app/apikey)에서 API 키를 발급받은 후, **서버를 실행할 바로 그 터미널에서** 아래 명령어를 실행하여 API 키를 설정합니다.
+    - **Windows (CMD):**
+      ```cmd
+      set GOOGLE_API_KEY="YOUR_API_KEY_HERE"
+      ```
+    - **Windows (PowerShell):**
+      ```powershell
+      $env:GOOGLE_API_KEY="YOUR_API_KEY_HERE"
+      ```
+    - **macOS / Linux:**
+      ```bash
+      export GOOGLE_API_KEY='YOUR_API_KEY_HERE'
+      ```
 
 5.  **API 서버 실행:**
+    > 반드시 가상 환경이 활성화되고 API 키가 설정된 터미널에서 실행하세요.
     ```bash
     uvicorn api_server:app --reload
     ```
     서버가 `http://127.0.0.1:8000`에서 실행됩니다.
 
-6.  **브라우저 확장 프로그램 로드:**
+6.  **브라우저 확장 프로그램 빌드 및 로드:**
+    - `extension` 폴더로 이동하여 필요한 패키지를 설치하고 빌드합니다.
+      ```bash
+      cd extension
+      npm install
+      npm run build
+      cd .. 
+      ```
     - Chrome/Edge 브라우저에서 `chrome://extensions` 또는 `edge://extensions`로 이동합니다.
     - '개발자 모드'를 활성화합니다.
-    - '압축 해제된 확장 프로그램을 로드합니다'를 클릭하고, 이 프로젝트의 `extension` 폴더를 선택합니다.
+    - '압축 해제된 확장 프로그램을 로드합니다'를 클릭하고, 이 프로젝트의 `extension/build` 폴더를 선택합니다.
 
 ---
 
