@@ -139,7 +139,7 @@ function App() {
     setError('');
     setReply('');
     try {
-      const response = await axios.post('http://localhost:8000/generate-response', {
+      const response = await axios.post('http://api.cs.aquaco.work/generate-response', {
         prompt: fullPrompt,
         category: selectedCategory,
       });

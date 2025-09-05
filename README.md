@@ -1,6 +1,6 @@
 # Customer Support AI Extension
 
-**Version:** `v1.4`
+**Version:** `v1.5`
 
 이 프로젝트는 고객 지원(CS) 업무, 특히 앱 리뷰나 이메일 문의에 대한 답변을 AI를 통해 자동 생성하여 업무 효율을 높이는 브라우저 확장 프로그램입니다.
 
@@ -79,6 +79,18 @@
 ---
 
 ### 📝 작업 기록
+
+#### v1.5: API 서버 프로덕션 배포 및 확장 프로그램 연동
+```
+feat(deploy): Gunicorn/Apache 기반 API 서버 배포 및 systemd 서비스 등록
+
+- **주요 변경:** 개발 환경에서 실행되던 API 서버를 AWS 프로덕션 환경에 배포하고, 브라우저 확장 프로그램이 배포된 서버와 통신하도록 수정했습니다.
+- **구현 내용:**
+  - Gunicorn을 ASGI 워커(Uvicorn)와 함께 사용하여 FastAPI 애플리케이션을 실행하도록 설정.
+  - Apache를 리버스 프록시로 설정하여 외부 요청을 Gunicorn으로 안전하게 전달.
+  - Gunicorn 프로세스를 systemd 서비스로 등록하여 서버 재부팅 시 자동 시작 및 안정적인 운영을 보장.
+  - 브라우저 확장 프로그램(App.js)의 API 요청 주소를 로컬(localhost)에서 프로덕션 서버 도메인으로 변경.
+```
 
 #### v1.4: API 호출 방식을 Vertex AI에서 Gemini API로 변경하고 기능 작동 시작함.
 - **주요 변경:** 백엔드 API 서버(`api_server.py`)와 테스트 스크립트(`test_model.py`)가 튜닝된 Vertex AI 모델 대신, 표준 Gemini API (`gemini-1.5-flash`)를 사용하도록 전면 수정했습니다.
