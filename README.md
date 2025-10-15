@@ -1,6 +1,6 @@
 # Customer Support AI Extension
 
-**Version:** `v1.5`
+**Version:** `v1.6`
 
 이 프로젝트는 고객 지원(CS) 업무, 특히 앱 리뷰나 이메일 문의에 대한 답변을 AI를 통해 자동 생성하여 업무 효율을 높이는 브라우저 확장 프로그램입니다.
 
@@ -79,6 +79,14 @@
 ---
 
 ### 📝 작업 기록
+
+#### v1.6: AI 모델 변경 (gemini-2.0-flash-lite)
+```
+refactor(model): AI 모델을 `gemini-2.0-flash-lite`로 변경
+
+- **주요 변경:** `api_server.py`와 `test_model.py`에서 사용되는 AI 모델을 기존 `gemini-1.5-flash`에서 `gemini-2.0-flash-lite`로 업데이트했습니다.
+```
+
 
 #### v1.5: API 서버 프로덕션 배포 및 확장 프로그램 연동
 ```

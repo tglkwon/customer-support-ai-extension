@@ -71,7 +71,7 @@ def generate_response(request: GenerateRequest):
     try:
         # Gemini 모델 설정 (시스템 프롬프트 포함)
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
+            model_name="gemini-2.0-flash-lite",
             system_instruction=system_prompt
         )
         
